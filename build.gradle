@@ -62,7 +62,7 @@ dependencies {
     implementation "org.springframework.boot:spring-boot-starter-webflux"
 
     // camunda
-    implementation 'io.camunda.spring:spring-boot-starter-camunda:8.4.0'
+    implementation 'io.camunda.spring:spring-boot-starter-camunda:8.3.5'
 
     // kotlin
     implementation "org.jetbrains.kotlin:kotlin-reflect"

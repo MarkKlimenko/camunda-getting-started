@@ -1,4 +1,4 @@
-package com.camunda.academy;
+package com.camunda.academy.insurance;
 
 import io.camunda.zeebe.spring.client.annotation.Deployment;
 import org.springframework.boot.SpringApplication;

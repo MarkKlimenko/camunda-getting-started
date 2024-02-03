@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:zeebe="http://camunda.org/schema/zeebe/1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_0zdt3f6" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.19.0" modeler:executionPlatform="Camunda Cloud" modeler:executionPlatformVersion="8.4.0">
   <bpmn:process id="insuranceProcess" name="Insurance process" isExecutable="true">
-    <bpmn:startEvent id="StartEvent_1" name="Application received">
+    <bpmn:startEvent id="startInsurance" name="Application received">
       <bpmn:outgoing>Flow_0src37m</bpmn:outgoing>
     </bpmn:startEvent>
     <bpmn:exclusiveGateway id="Gateway_0lkdy93">
@@ -10,47 +10,39 @@
       <bpmn:outgoing>Flow_1taixs1</bpmn:outgoing>
       <bpmn:outgoing>Flow_0iwu1ts</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="Flow_0ji6dle" sourceRef="Activity_1euum2c" targetRef="Activity_13y6lhe" />
+    <bpmn:sequenceFlow id="Flow_0ji6dle" sourceRef="insurance.issuePolicy" targetRef="insurance.sendPolicy" />
     <bpmn:endEvent id="Event_0q5v6n1" name="Policy issued">
       <bpmn:incoming>Flow_0tgds71</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:sequenceFlow id="Flow_0tgds71" sourceRef="Activity_13y6lhe" targetRef="Event_0q5v6n1" />
-    <bpmn:sequenceFlow id="Flow_00fuh57" sourceRef="Activity_02f1812" targetRef="Gateway_0lkdy93" />
-    <bpmn:sequenceFlow id="Flow_09d6rg5" name="Green" sourceRef="Gateway_0lkdy93" targetRef="Activity_1euum2c">
+    <bpmn:sequenceFlow id="Flow_0tgds71" sourceRef="insurance.sendPolicy" targetRef="Event_0q5v6n1" />
+    <bpmn:sequenceFlow id="Flow_00fuh57" sourceRef="insurance.determineRisks" targetRef="Gateway_0lkdy93" />
+    <bpmn:sequenceFlow id="Flow_09d6rg5" name="Green" sourceRef="Gateway_0lkdy93" targetRef="insurance.issuePolicy">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=riskLevel = "green"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_1taixs1" name="Yellow" sourceRef="Gateway_0lkdy93" targetRef="Activity_1rjouee">
+    <bpmn:sequenceFlow id="Flow_1taixs1" name="Yellow" sourceRef="Gateway_0lkdy93" targetRef="insurance.decideOnApplication">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=riskLevel = "yellow"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_0iwu1ts" name="Red" sourceRef="Gateway_0lkdy93" targetRef="Activity_1afolhd">
+    <bpmn:sequenceFlow id="Flow_0iwu1ts" name="Red" sourceRef="Gateway_0lkdy93" targetRef="insurance.rejectPolicy">
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=riskLevel = "red"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_0cyqsi9" sourceRef="Activity_1afolhd" targetRef="Activity_0s1bl2s" />
+    <bpmn:sequenceFlow id="Flow_0cyqsi9" sourceRef="insurance.rejectPolicy" targetRef="insurance.sendRejection" />
     <bpmn:endEvent id="Event_1wk3umo" name="Application rejected">
       <bpmn:incoming>Flow_055a6eh</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:sequenceFlow id="Flow_055a6eh" sourceRef="Activity_0s1bl2s" targetRef="Event_1wk3umo" />
+    <bpmn:sequenceFlow id="Flow_055a6eh" sourceRef="insurance.sendRejection" targetRef="Event_1wk3umo" />
     <bpmn:exclusiveGateway id="Gateway_0lslr35">
       <bpmn:incoming>Flow_061u02y</bpmn:incoming>
       <bpmn:outgoing>Flow_020wx5e</bpmn:outgoing>
       <bpmn:outgoing>Flow_0utnhxz</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:sequenceFlow id="Flow_020wx5e" name="Application accepted" sourceRef="Gateway_0lslr35" targetRef="Activity_1euum2c">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=applicationStatus = "accepted"</bpmn:conditionExpression>
+    <bpmn:sequenceFlow id="Flow_020wx5e" name="Application accepted" sourceRef="Gateway_0lslr35" targetRef="insurance.issuePolicy">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=decision = "accepted"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_0utnhxz" name="Application rejected" sourceRef="Gateway_0lslr35" targetRef="Activity_1afolhd">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=applicationStatus = "rejected"</bpmn:conditionExpression>
+    <bpmn:sequenceFlow id="Flow_0utnhxz" name="Application rejected" sourceRef="Gateway_0lslr35" targetRef="insurance.rejectPolicy">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=decision = "rejected"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_061u02y" sourceRef="Activity_1rjouee" targetRef="Gateway_0lslr35" />
-    <bpmn:sequenceFlow id="Flow_0src37m" sourceRef="StartEvent_1" targetRef="Activity_02f1812" />
-    <bpmn:userTask id="Activity_1rjouee" name="Decide on application">
-      <bpmn:extensionElements>
-        <zeebe:assignmentDefinition assignee="insurance.decideOnApplication" />
-      </bpmn:extensionElements>
-      <bpmn:incoming>Flow_1taixs1</bpmn:incoming>
-      <bpmn:outgoing>Flow_061u02y</bpmn:outgoing>
-    </bpmn:userTask>
-    <bpmn:serviceTask id="Activity_1euum2c" name="Issue policy">
+    <bpmn:sequenceFlow id="Flow_061u02y" sourceRef="insurance.decideOnApplication" targetRef="Gateway_0lslr35" />
+    <bpmn:serviceTask id="insurance.issuePolicy" name="Issue policy">
       <bpmn:extensionElements>
         <zeebe:taskDefinition type="insurance.issuePolicy" />
       </bpmn:extensionElements>
@@ -58,7 +50,7 @@
       <bpmn:incoming>Flow_020wx5e</bpmn:incoming>
       <bpmn:outgoing>Flow_0ji6dle</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:serviceTask id="Activity_1afolhd" name="Reject policy">
+    <bpmn:serviceTask id="insurance.rejectPolicy" name="Reject policy">
       <bpmn:extensionElements>
         <zeebe:taskDefinition type="insurance.rejectPolicy" />
       </bpmn:extensionElements>
@@ -66,34 +58,44 @@
       <bpmn:incoming>Flow_0utnhxz</bpmn:incoming>
       <bpmn:outgoing>Flow_0cyqsi9</bpmn:outgoing>
     </bpmn:serviceTask>
-    <bpmn:sendTask id="Activity_13y6lhe" name="Send policy">
+    <bpmn:sendTask id="insurance.sendPolicy" name="Send policy">
       <bpmn:extensionElements>
         <zeebe:taskDefinition type="insurance.sendPolicy" />
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_0ji6dle</bpmn:incoming>
       <bpmn:outgoing>Flow_0tgds71</bpmn:outgoing>
     </bpmn:sendTask>
-    <bpmn:sendTask id="Activity_0s1bl2s" name="Send rejection">
+    <bpmn:sendTask id="insurance.sendRejection" name="Send rejection">
       <bpmn:extensionElements>
         <zeebe:taskDefinition type="insurance.sendRejection" />
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_0cyqsi9</bpmn:incoming>
       <bpmn:outgoing>Flow_055a6eh</bpmn:outgoing>
     </bpmn:sendTask>
-    <bpmn:businessRuleTask id="Activity_02f1812" name="Determine risks">
+    <bpmn:businessRuleTask id="insurance.determineRisks" name="Determine risks">
       <bpmn:extensionElements>
         <zeebe:taskDefinition type="insurance.determineRisks" />
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_0src37m</bpmn:incoming>
       <bpmn:outgoing>Flow_00fuh57</bpmn:outgoing>
     </bpmn:businessRuleTask>
+    <bpmn:sequenceFlow id="Flow_0src37m" sourceRef="startInsurance" targetRef="insurance.determineRisks" />
+    <bpmn:receiveTask id="insurance.decideOnApplication" name="Decide on application" messageRef="Message_3dhb6o1">
+      <bpmn:incoming>Flow_1taixs1</bpmn:incoming>
+      <bpmn:outgoing>Flow_061u02y</bpmn:outgoing>
+    </bpmn:receiveTask>
   </bpmn:process>
+  <bpmn:message id="Message_3dhb6o1" name="insurance.decideOnApplication">
+    <bpmn:extensionElements>
+      <zeebe:subscription correlationKey="=id" />
+    </bpmn:extensionElements>
+  </bpmn:message>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="insuranceProcess">
-      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
-        <dc:Bounds x="192" y="99" width="36" height="36" />
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="startInsurance">
+        <dc:Bounds x="132" y="99" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="183" y="142" width="54" height="27" />
+          <dc:Bounds x="123" y="142" width="54" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_0lkdy93_di" bpmnElement="Gateway_0lkdy93" isMarkerVisible="true">
@@ -114,23 +116,23 @@
       <bpmndi:BPMNShape id="Gateway_0lslr35_di" bpmnElement="Gateway_0lslr35" isMarkerVisible="true">
         <dc:Bounds x="785" y="275" width="50" height="50" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1v7dsj6_di" bpmnElement="Activity_1rjouee">
-        <dc:Bounds x="550" y="260" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1nz7pfj_di" bpmnElement="Activity_1euum2c">
+      <bpmndi:BPMNShape id="Activity_1nz7pfj_di" bpmnElement="insurance.issuePolicy">
         <dc:Bounds x="930" y="77" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0vvj2rz_di" bpmnElement="Activity_1afolhd">
+      <bpmndi:BPMNShape id="Activity_0vvj2rz_di" bpmnElement="insurance.rejectPolicy">
         <dc:Bounds x="930" y="430" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1rh3b9o_di" bpmnElement="Activity_13y6lhe">
+      <bpmndi:BPMNShape id="Activity_1rh3b9o_di" bpmnElement="insurance.sendPolicy">
         <dc:Bounds x="1080" y="77" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_1sas803_di" bpmnElement="Activity_0s1bl2s">
+      <bpmndi:BPMNShape id="Activity_1sas803_di" bpmnElement="insurance.sendRejection">
         <dc:Bounds x="1080" y="430" width="100" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0oo8nps_di" bpmnElement="Activity_02f1812">
+      <bpmndi:BPMNShape id="Activity_0oo8nps_di" bpmnElement="insurance.determineRisks">
         <dc:Bounds x="280" y="77" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1ol4j5u_di" bpmnElement="insurance.decideOnApplication">
+        <dc:Bounds x="550" y="260" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Flow_0ji6dle_di" bpmnElement="Flow_0ji6dle">
         <di:waypoint x="1030" y="117" />
@@ -196,7 +198,7 @@
         <di:waypoint x="785" y="300" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0src37m_di" bpmnElement="Flow_0src37m">
-        <di:waypoint x="228" y="117" />
+        <di:waypoint x="168" y="117" />
         <di:waypoint x="280" y="117" />
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
