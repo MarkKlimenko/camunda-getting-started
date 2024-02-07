@@ -1,4 +1,4 @@
-package com.camunda.academy.insurance.worker
+package com.camunda.academy.insurance.worker.insurance.risk
 
 import com.camunda.academy.insurance.dto.InsuranceDto
 import com.camunda.academy.insurance.service.InsuranceService
@@ -12,7 +12,7 @@ class DetermineRisksWorker(
     val insuranceService: InsuranceService
 ) {
 
-    @JobWorker(type = "insurance.determineRisks")
+    @JobWorker(type = "insurance.risk.determineRisks")
     fun determineRisks(job: ActivatedJob, @VariablesAsType dto: InsuranceDto): InsuranceDto {
         val riskLevel: String = when {
             dto.userAge < 20 -> "red"

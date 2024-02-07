@@ -1,8 +1,7 @@
 package com.camunda.academy.insurance.service
 
 import com.camunda.academy.insurance.controller.dto.insurance.CreateInsuranceRequest
-import com.camunda.academy.insurance.controller.dto.insurance.CreateInsuranceResponse
-import com.camunda.academy.insurance.controller.dto.insurance.DecideOnApplicationResponse
+import com.camunda.academy.insurance.controller.dto.insurance.UniversalResponse
 import com.camunda.academy.insurance.dto.InsuranceDto
 import io.camunda.zeebe.client.ZeebeClient
 import mu.KLogging
@@ -20,7 +19,7 @@ class InsuranceService(
 
     suspend fun createInsurance(
         @RequestBody request: CreateInsuranceRequest
-    ): CreateInsuranceResponse {
+    ): UniversalResponse {
         try {
             val insuranceDto = InsuranceDto(
                 id = UUID.randomUUID().toString(),
@@ -39,7 +38,9 @@ class InsuranceService(
                 .send()
                 .join()
 
-            return CreateInsuranceResponse(
+            logger.info { "User: application created dto = $insuranceDto" }
+
+            return UniversalResponse(
                 id = insuranceDto.id,
                 message = "Your application was created. Please wait for decision"
             )
@@ -47,19 +48,6 @@ class InsuranceService(
             logger.error(e) { "Operation failed. Try later" }
             throw HttpClientErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "Operation failed. Try later")
         }
-    }
-
-    suspend fun decideOnApplication(id: String, decision: String): DecideOnApplicationResponse {
-        client.newPublishMessageCommand()
-            .messageName("insurance.decideOnApplication")
-            .correlationKey(id)
-            .variables(mapOf("decision" to decision))
-            .send()
-
-        return DecideOnApplicationResponse(
-            id = id,
-            message = "Application processed"
-        )
     }
 
     fun save(dto: InsuranceDto) {

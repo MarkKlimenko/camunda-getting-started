@@ -1,4 +1,4 @@
-package com.camunda.academy.insurance.worker
+package com.camunda.academy.insurance.worker.insurance.risk
 
 import com.camunda.academy.insurance.dto.InsuranceDto
 import com.camunda.academy.insurance.service.InsuranceService
@@ -12,9 +12,8 @@ class OperatorSendAlertWorker(
     val insuranceService: InsuranceService
 ) {
 
-    @JobWorker(type = "insurance.sendOperatorAlert")
-    fun issuePolicy(@VariablesAsType dto: InsuranceDto) {
-
+    @JobWorker(type = "insurance.risk.sendOperatorAlert")
+    fun sendOperatorAlert(@VariablesAsType dto: InsuranceDto) {
         logger.info { "Operator: Please, make decision. dto=$dto" }
     }
 
