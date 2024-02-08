@@ -10,6 +10,6 @@ data class InsuranceDto(
     val autoBrand: String,
 ) {
     enum class Status {
-        PENDING, SUCCESS, REJECTED
+        PENDING, SUCCESS, REJECTED, RETRY
     }
 }

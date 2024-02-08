@@ -1,0 +1,299 @@
+{
+	"info": {
+		"_postman_id": "5ae403d9-21bf-4162-ab23-01a08ceac84a",
+		"name": "Insurance Camunda",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "3405420"
+	},
+	"item": [
+		{
+			"name": "User: Create insurance",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.environment.set(\"insuranceId\", pm.response.json().id);",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"userName\": \"Mark Klimenko\",\n    \"userAge\": \"31\",\n    \"autoBrand\": \"RangeRover\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/api/v1/insurance/user",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"insurance",
+						"user"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Operator: decide - ACCEPTED",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/api/v1/insurance/operator/decide/{{insuranceId}}/ACCEPTED",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"insurance",
+						"operator",
+						"decide",
+						"{{insuranceId}}",
+						"ACCEPTED"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Operator: decide - REJECTED",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/api/v1/insurance/decide/{{insuranceId}}/REJECTED",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"insurance",
+						"decide",
+						"{{insuranceId}}",
+						"REJECTED"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Operator: decide - INFO_REQUIRED",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/api/v1/insurance/decide/{{insuranceId}}/INFO_REQUIRED",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"insurance",
+						"decide",
+						"{{insuranceId}}",
+						"INFO_REQUIRED"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "User: Provide additional information",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/api/v1/insurance/user/info/{{insuranceId}}",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"insurance",
+						"user",
+						"info",
+						"{{insuranceId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Operator: Return funds manually",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/api/v1/insurance/operator/return-funds/{{insuranceId}}",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"insurance",
+						"operator",
+						"return-funds",
+						"{{insuranceId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Payment system: Payment callback",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/api/v1/insurance/payment-system/callback/{{insuranceId}}",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"insurance",
+						"payment-system",
+						"callback",
+						"{{insuranceId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Operator: Issue policy - RETRY",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"userName\": \"Mark Klimenko\",\n    \"userAge\": \"50\",\n    \"autoBrand\": \"RangeRover\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/api/v1/insurance/operator/issue-policy/retry/{{insuranceId}}/RETRY",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"insurance",
+						"operator",
+						"issue-policy",
+						"retry",
+						"{{insuranceId}}",
+						"RETRY"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Operator: Issue policy - REJECT",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"userName\": \"Mark Klimenko\",\n    \"userAge\": \"50\",\n    \"autoBrand\": \"RangeRover\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/api/v1/insurance/operator/issue-policy/retry/{{insuranceId}}/REJECTED",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"insurance",
+						"operator",
+						"issue-policy",
+						"retry",
+						"{{insuranceId}}",
+						"REJECTED"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Operator: Issue policy -  SUCCESS",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"userName\": \"Mark Klimenko\",\n    \"userAge\": \"50\",\n    \"autoBrand\": \"RangeRover\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/api/v1/insurance/operator/issue-policy/retry/{{insuranceId}}/SUCCESS",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"insurance",
+						"operator",
+						"issue-policy",
+						"retry",
+						"{{insuranceId}}",
+						"SUCCESS"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "insuranceId",
+			"value": "ps"
+		}
+	]
+}

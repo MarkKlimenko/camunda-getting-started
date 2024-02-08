@@ -9,7 +9,7 @@ class RejectPolicyService(
     val client: ZeebeClient
 ) {
 
-    fun operatorReturnFunds(id: String): UniversalResponse {
+    fun returnFunds(id: String): UniversalResponse {
         client.newPublishMessageCommand()
             .messageName("insurance.reject.operatorReturnFunds")
             .correlationKey(id)
