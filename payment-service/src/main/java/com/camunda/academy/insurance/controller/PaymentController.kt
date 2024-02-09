@@ -17,4 +17,10 @@ class PaymentController(
     suspend fun callbackPayment(
         @PathVariable id: String
     ): UniversalResponse = paymentService.callbackPayment(id)
+
+    @PostMapping("operator/return-funds/{id}")
+    suspend fun returnFunds(
+        @PathVariable id: String
+    ): UniversalResponse = paymentService.returnFunds(id)
+
 }

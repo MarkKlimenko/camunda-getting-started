@@ -22,5 +22,17 @@ class PaymentService(
         )
     }
 
+    fun returnFunds(id: String): UniversalResponse {
+        client.newPublishMessageCommand()
+            .messageName("insurance.reject.operatorReturnFunds")
+            .correlationKey(id)
+            .send()
+
+        return UniversalResponse(
+            id = id,
+            message = "Funds were successfully returned to user"
+        )
+    }
+
     private companion object : KLogging()
 }
