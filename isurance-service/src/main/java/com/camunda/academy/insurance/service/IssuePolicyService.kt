@@ -1,7 +1,7 @@
 package com.camunda.academy.insurance.service
 
-import com.camunda.academy.insurance.controller.dto.insurance.UniversalResponse
-import com.camunda.academy.insurance.dto.InsuranceDto
+import com.camunda.academy.insurance.controller.dto.ManualPolicyStatus
+import com.camunda.academy.insurance.controller.dto.UniversalResponse
 import io.camunda.zeebe.client.ZeebeClient
 import mu.KLogging
 import org.springframework.stereotype.Service
@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service
 class IssuePolicyService(
     val client: ZeebeClient
 ) {
-    suspend fun retryIssuePolicy(id: String, status: InsuranceDto.Status): UniversalResponse {
+    suspend fun retryIssuePolicy(id: String, status: ManualPolicyStatus): UniversalResponse {
         //val resultDto: InsuranceDto = dto.copy(status = status)
         //insuranceService.save(resultDto)
 

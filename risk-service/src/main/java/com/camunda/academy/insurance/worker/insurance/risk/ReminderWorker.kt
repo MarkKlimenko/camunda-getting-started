@@ -1,8 +1,7 @@
 package com.camunda.academy.insurance.worker.insurance.risk
 
-import com.camunda.academy.insurance.dto.InsuranceDto
 import io.camunda.zeebe.spring.client.annotation.JobWorker
-import io.camunda.zeebe.spring.client.annotation.VariablesAsType
+import io.camunda.zeebe.spring.client.annotation.Variable
 import mu.KLogging
 import org.springframework.stereotype.Component
 
@@ -10,13 +9,13 @@ import org.springframework.stereotype.Component
 class ReminderWorker() {
 
     @JobWorker(type = "insurance.risk.sendManagerReminder")
-    fun sendManagerAlert(@VariablesAsType dto: InsuranceDto) {
-        logger.info { "Manager: Your operator is too slow. dto=$dto" }
+    fun sendManagerAlert(@Variable id: String) {
+        logger.info { "Manager: Your operator is too slow. id=$id" }
     }
 
     @JobWorker(type = "insurance.risk.sendOperatorReminder")
-    fun sendOperatorReminder(@VariablesAsType dto: InsuranceDto) {
-        logger.info { "Operator: You are too slow. dto=$dto" }
+    fun sendOperatorReminder(@Variable id: String) {
+        logger.info { "Operator: You are too slow. dto=$id" }
     }
 
     private companion object : KLogging()

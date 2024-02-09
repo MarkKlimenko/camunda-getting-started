@@ -73,6 +73,17 @@ dependencies {
     implementation "io.github.microutils:kotlin-logging-jvm:$kotlinLoggingVersion"
     implementation "com.fasterxml.jackson.module:jackson-module-kotlin:$kotlinJacksonVersion"
 
+    // database
+    implementation "org.springframework.boot:spring-boot-starter-data-r2dbc"
+
+    // database - postgres
+    implementation "org.postgresql:postgresql"
+    implementation "org.postgresql:r2dbc-postgresql"
+
+    // flyway
+    implementation "org.springframework.boot:spring-boot-starter-jdbc"
+    implementation "org.flywaydb:flyway-core"
+    
     // test
     testImplementation "org.springframework.boot:spring-boot-starter-test"
     testImplementation "org.junit.jupiter:junit-jupiter-api:$junitVersion"

@@ -1,8 +1,8 @@
 package com.camunda.academy.insurance.controller
 
-import com.camunda.academy.insurance.controller.dto.insurance.CreateInsuranceRequest
-import com.camunda.academy.insurance.controller.dto.insurance.UniversalResponse
-import com.camunda.academy.insurance.dto.InsuranceDto
+import com.camunda.academy.insurance.controller.dto.CreateInsuranceRequest
+import com.camunda.academy.insurance.controller.dto.ManualPolicyStatus
+import com.camunda.academy.insurance.controller.dto.UniversalResponse
 import com.camunda.academy.insurance.service.InsuranceService
 import com.camunda.academy.insurance.service.IssuePolicyService
 import org.springframework.web.bind.annotation.PathVariable
@@ -26,6 +26,6 @@ class InsuranceController(
     @PostMapping("operator/issue-policy/retry/{id}/{status}")
     suspend fun retryIssuePolicy(
         @PathVariable id: String,
-        @PathVariable status: InsuranceDto.Status
+        @PathVariable status: ManualPolicyStatus
     ): UniversalResponse = issuePolicyService.retryIssuePolicy(id, status)
 }

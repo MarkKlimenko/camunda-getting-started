@@ -1,28 +1,34 @@
 package com.camunda.academy.insurance.worker.insurance.reject
 
-import com.camunda.academy.insurance.dto.InsuranceDto
-import com.camunda.academy.insurance.service.InsuranceService
+import com.camunda.academy.insurance.persistence.entity.Insurance
+import com.camunda.academy.insurance.persistence.entity.InsuranceStatus
+import com.camunda.academy.insurance.persistence.repository.InsuranceRepository
 import io.camunda.zeebe.spring.client.annotation.JobWorker
-import io.camunda.zeebe.spring.client.annotation.VariablesAsType
-import io.camunda.zeebe.spring.client.exception.ZeebeBpmnError
+import io.camunda.zeebe.spring.client.annotation.Variable
+import kotlinx.coroutines.runBlocking
 import mu.KLogging
 import org.springframework.stereotype.Component
 
 @Component
 class RejectPolicyWorker(
-    val insuranceService: InsuranceService
+    val insuranceRepository: InsuranceRepository,
 ) {
 
     @JobWorker(type = "insurance.reject.rejectPolicy")
-    fun rejectPolicy(@VariablesAsType dto: InsuranceDto) {
-        // TODO: add queue
-        logger.info { "Internal: Policy rejected. dto=$dto" }
+    fun rejectPolicy(@Variable id: String): Map<String, InsuranceStatus> = runBlocking {
+        val insurance: Insurance = insuranceRepository.findById(id)
+            ?: error("Insurance not found")
+
+        insuranceRepository.save(insurance.copy(status = InsuranceStatus.REJECTED))
+
+        logger.info { "Internal: Policy rejected. id=$id" }
+        mapOf("status" to InsuranceStatus.REJECTED)
     }
 
     @JobWorker(type = "insurance.reject.sendRejection")
-    fun sendRejection(@VariablesAsType dto: InsuranceDto) {
+    fun sendRejection(@Variable id: String) {
         // TODO: add queue
-        logger.info { "User: Rejection sent by email. dto=$dto" }
+        logger.info { "User: Rejection sent by email. id=$id" }
     }
 
     private companion object : KLogging()

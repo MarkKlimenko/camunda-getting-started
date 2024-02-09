@@ -1,7 +1,6 @@
 package com.camunda.academy.insurance.worker.insurance.risk
 
-import com.camunda.academy.insurance.dto.InsuranceDto
-import io.camunda.zeebe.client.api.response.ActivatedJob
+import com.camunda.academy.insurance.dto.RiskLevel
 import io.camunda.zeebe.spring.client.annotation.JobWorker
 import io.camunda.zeebe.spring.client.annotation.VariablesAsType
 import org.springframework.stereotype.Component
@@ -10,16 +9,26 @@ import org.springframework.stereotype.Component
 class DetermineRisksWorker() {
 
     @JobWorker(type = "insurance.risk.determineRisks")
-    fun determineRisks(@VariablesAsType dto: InsuranceDto): InsuranceDto {
-        val riskLevel: String = when {
-            dto.userAge < 20 -> "red"
-            dto.userAge > 40 -> "yellow"
-            else -> "green"
+    fun determineRisks(@VariablesAsType request: DetermineRiskRequest): DetermineRiskResponse {
+        val riskLevel: RiskLevel = when {
+            request.userAge < 20 -> RiskLevel.RED
+            request.userAge > 40 -> RiskLevel.YELLOW
+            else -> RiskLevel.GREEN
         }
 
-        //val resultDto: InsuranceDto = dto.copy(riskLevel = riskLevel)
-        //insuranceService.save(resultDto)
-
-        return dto.copy(riskLevel = riskLevel)
+        return DetermineRiskResponse(
+            riskLevel = riskLevel
+        )
     }
+
+    data class DetermineRiskRequest(
+        val id: String,
+        val userName: String,
+        val userAge: Int,
+        val autoBrand: String,
+    )
+
+    data class DetermineRiskResponse(
+        val riskLevel: RiskLevel
+    )
 }

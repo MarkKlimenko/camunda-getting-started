@@ -1,45 +1,49 @@
 package com.camunda.academy.insurance.worker.insurance.issue
 
-import com.camunda.academy.insurance.dto.InsuranceDto
-import com.camunda.academy.insurance.service.InsuranceService
+import com.camunda.academy.insurance.persistence.entity.Insurance
+import com.camunda.academy.insurance.persistence.entity.InsuranceStatus
+import com.camunda.academy.insurance.persistence.entity.InsuranceStatus.REJECTED
+import com.camunda.academy.insurance.persistence.entity.InsuranceStatus.SUCCESS
+import com.camunda.academy.insurance.persistence.repository.InsuranceRepository
 import io.camunda.zeebe.spring.client.annotation.JobWorker
-import io.camunda.zeebe.spring.client.annotation.VariablesAsType
+import io.camunda.zeebe.spring.client.annotation.Variable
 import io.camunda.zeebe.spring.client.exception.ZeebeBpmnError
 import mu.KLogging
 import org.springframework.stereotype.Component
 
 @Component
 class IssuePolicyWorker(
-    val insuranceService: InsuranceService
+    val insuranceRepository: InsuranceRepository,
 ) {
 
     @JobWorker(type = "insurance.issue.sendInitiatePayment")
-    fun sendInitiatePayment(@VariablesAsType dto: InsuranceDto) {
-        logger.info { "User: Payment initiated. Payment link sent to user. dto=$dto" }
+    fun sendInitiatePayment(@Variable id: String) {
+        logger.info { "User: Payment initiated. Payment link sent to user. id=$id" }
     }
 
     @JobWorker(type = "insurance.issue.paymentReminder")
-    fun paymentReminder(@VariablesAsType dto: InsuranceDto) {
-        logger.info { "User: Don't forget to pay for the policy. dto=$dto" }
+    fun paymentReminder(@Variable id: String) {
+        logger.info { "User: Don't forget to pay for the policy. id=$id" }
     }
 
     @JobWorker(type = "insurance.issue.issuePolicy")
-    fun issuePolicy(@VariablesAsType dto: InsuranceDto): InsuranceDto {
+    suspend fun issuePolicy(@Variable id: String): Map<String, InsuranceStatus> {
+        val insurance: Insurance = insuranceRepository.findById(id)
+            ?: error("Insurance not found")
+
         try {
-            return if (dto.userAge == 31) {
+            return if (insurance.userAge == 31) {
                 throw IllegalArgumentException("Age 31 is not supported")
-            } else if (dto.userAge == 32) {
-                val resultDto: InsuranceDto = dto.copy(status = InsuranceDto.Status.REJECTED)
-                insuranceService.save(resultDto)
+            } else if (insurance.userAge == 32) {
+                insuranceRepository.save(insurance.copy(status = REJECTED))
 
-                logger.info { "System: Policy rejected. dto=$dto" }
-                resultDto
+                logger.info { "System: Policy rejected. id=$id" }
+                mapOf("status" to REJECTED)
             } else {
-                val resultDto: InsuranceDto = dto.copy(status = InsuranceDto.Status.SUCCESS)
-                insuranceService.save(resultDto)
+                insuranceRepository.save(insurance.copy(status = SUCCESS))
 
-                logger.info { "System: Policy issued. dto=$dto" }
-                resultDto
+                logger.info { "System: Policy issued. id=$id" }
+                mapOf("status" to SUCCESS)
             }
 
         } catch (e: Exception) {
@@ -49,13 +53,13 @@ class IssuePolicyWorker(
     }
 
     @JobWorker(type = "insurance.issue.notifyOperatorOnError")
-    fun notifyOperatorOnError(@VariablesAsType dto: InsuranceDto) {
-        logger.info { "Operator: Error during policy issuing. dto=$dto" }
+    fun notifyOperatorOnError(@Variable id: String) {
+        logger.info { "Operator: Error during policy issuing. id=$id" }
     }
 
     @JobWorker(type = "insurance.issue.sendPolicy")
-    fun sendPolicy(@VariablesAsType dto: InsuranceDto) {
-        logger.info { "User: Policy sent by email. dto=$dto" }
+    fun sendPolicy(@Variable id: String) {
+        logger.info { "User: Policy sent by email. id=$id" }
     }
 
     private companion object : KLogging()

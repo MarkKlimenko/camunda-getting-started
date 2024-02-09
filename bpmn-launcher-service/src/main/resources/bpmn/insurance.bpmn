@@ -2,6 +2,11 @@
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:zeebe="http://camunda.org/schema/zeebe/1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_0zdt3f6" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.19.0" modeler:executionPlatform="Camunda Cloud" modeler:executionPlatformVersion="8.4.0">
   <bpmn:process id="insuranceProcess" name="Insurance process" isExecutable="true">
     <bpmn:startEvent id="startInsurance" name="Application received">
+      <bpmn:extensionElements>
+        <zeebe:properties>
+          <zeebe:property name="camundaModeler:exampleOutputJson" value="{&#10; &#34;id&#34;: &#34;&#34;,&#10; &#34;userName&#34;: &#34;&#34;,&#10; &#34;userAge&#34;: 0,&#10; &#34;autoBrand&#34;:&#34;&#34;&#10;}" />
+        </zeebe:properties>
+      </bpmn:extensionElements>
       <bpmn:outgoing>Flow_0src37m</bpmn:outgoing>
     </bpmn:startEvent>
     <bpmn:exclusiveGateway id="Gateway_0lkdy93">
@@ -12,7 +17,7 @@
     </bpmn:exclusiveGateway>
     <bpmn:sequenceFlow id="Flow_00fuh57" sourceRef="insurance.determineRisks" targetRef="Gateway_0lkdy93" />
     <bpmn:sequenceFlow id="Flow_09d6rg5" name="Green 20-40" sourceRef="Gateway_0lkdy93" targetRef="Activity_0z33msd">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=riskLevel = "green"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=riskLevel = "GREEN"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:exclusiveGateway id="Gateway_0lslr35">
       <bpmn:incoming>Flow_185dc98</bpmn:incoming>
@@ -25,6 +30,9 @@
     <bpmn:businessRuleTask id="insurance.determineRisks" name="Determine risks">
       <bpmn:extensionElements>
         <zeebe:taskDefinition type="insurance.risk.determineRisks" />
+        <zeebe:properties>
+          <zeebe:property name="camundaModeler:exampleOutputJson" value="{&#10; &#34;riskLevel&#34;: &#34;&#34;&#10;}" />
+        </zeebe:properties>
       </bpmn:extensionElements>
       <bpmn:incoming>Flow_0src37m</bpmn:incoming>
       <bpmn:outgoing>Flow_00fuh57</bpmn:outgoing>
@@ -152,7 +160,7 @@
       <bpmn:sequenceFlow id="Flow_1p12ipf" sourceRef="Gateway_0lpbbw0" targetRef="Event_1bgd80n" />
     </bpmn:subProcess>
     <bpmn:sequenceFlow id="Flow_1taixs1" name="Yellow &#62;40" sourceRef="Gateway_0lkdy93" targetRef="process.yellow.risks">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=riskLevel = "yellow"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=riskLevel = "YELLOW"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_185dc98" sourceRef="process.yellow.risks" targetRef="Gateway_0lslr35" />
     <bpmn:endEvent id="Event_0q5v6n1" name="Policy issued">
@@ -207,6 +215,9 @@
         <bpmn:serviceTask id="Activity_1xm9zeu" name="Issue policy">
           <bpmn:extensionElements>
             <zeebe:taskDefinition type="insurance.issue.issuePolicy" retries="1" />
+            <zeebe:properties>
+              <zeebe:property name="camundaModeler:exampleOutputJson" value="{&#10; &#34;status&#34;: &#34;SUCCESS/REJECTED&#34;&#10;}" />
+            </zeebe:properties>
           </bpmn:extensionElements>
           <bpmn:incoming>Flow_0n3x7gq</bpmn:incoming>
           <bpmn:incoming>Flow_1eomwsu</bpmn:incoming>
@@ -400,7 +411,7 @@
       <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=decision = "REJECTED"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0iwu1ts" name="Red &#60; 20" sourceRef="Gateway_0lkdy93" targetRef="Activity_1wxkzvn">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=riskLevel = "red"</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=riskLevel = "RED"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_0njc7hb" sourceRef="Activity_1wxkzvn" targetRef="Event_1wk3umo" />
     <bpmn:sequenceFlow id="Flow_1fsj6w9" sourceRef="Event_0dcf3ls" targetRef="Activity_1wxkzvn" />

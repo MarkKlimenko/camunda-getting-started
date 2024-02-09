@@ -1,4 +1,4 @@
-package com.camunda.academy.insurance.controller.dto.insurance
+package com.camunda.academy.insurance.controller.dto
 
 data class CreateInsuranceRequest(
     val userName: String,
