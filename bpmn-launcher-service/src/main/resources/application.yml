@@ -1,0 +1,8 @@
+zeebe:
+  client:
+    cloud:
+      region: jfk-1
+      clusterId: d94b4bc3-d0ab-4046-a3e4-543e82d4840e
+      clientId: GfdvNzYFS8fKVTYDZs6TleXxaMCPRYxt
+      clientSecret: tdwuoLQpSPi4tZrVpNzDoQMWYP8KCDo4VCSie2K_LIuXItBiN3hiG20-.bBRItuf
+    default-job-worker-tenant-ids:
