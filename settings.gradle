@@ -1,1 +1,6 @@
 rootProject.name = 'camunda-getting-started'
+
+include 'bpmn-launcher-service'
+include 'isurance-service'
+include 'payment-service'
+include 'risks-service'
