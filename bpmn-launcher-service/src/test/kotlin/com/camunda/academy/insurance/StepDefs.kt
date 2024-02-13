@@ -36,7 +36,7 @@ class StepDefs : BpmnTest() {
             .join()
     }
 
-    @Then("Receive task {string} with parameters")
+    @Then("Receive task {string}")
     fun receiveTaskWithParameters(taskId: String, parameters: Map<String, Any>?) {
         println("Expect task '$taskId' and send parameters: $parameters")
 
@@ -51,22 +51,7 @@ class StepDefs : BpmnTest() {
         client.newCompleteCommand(job.getKey()).variables(parameters).send().join()
     }
 
-    @Then("Receive task {string}")
-    fun receiveTask(taskId: String) {
-        println("Expect task '$taskId'")
-
-        val job: ActivatedJob = client.newActivateJobsCommand()
-            .jobType(taskId)
-            .maxJobsToActivate(1)
-            .send()
-            .join()
-            .jobs
-            .first()
-
-        client.newCompleteCommand(job.getKey()).send().join()
-    }
-
-    @Then("Send task {string} with correlation key {string}")
+    @Then("Send task {string} with key {string}")
     fun sendTask(taskId: String, correlationKey: String, parameters: Map<String, Any>) {
         println("Send task '$taskId' and send parameters: $parameters")
 
