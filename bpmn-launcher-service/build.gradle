@@ -71,6 +71,11 @@ dependencies {
     testImplementation "org.junit.jupiter:junit-jupiter-api:$junitVersion"
     testImplementation "org.junit.jupiter:junit-jupiter-params:$junitVersion"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
+
+    testImplementation "io.cucumber:cucumber-java:6.10.4"
+    testImplementation "io.cucumber:cucumber-spring:6.10.4"
+    testImplementation "io.cucumber:cucumber-junit-platform-engine:6.10.4"
+    //testImplementation 'io.camunda:spring-zeebe-test:8.3.5'
 }
 
 test {
