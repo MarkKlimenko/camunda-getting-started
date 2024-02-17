@@ -1,4 +1,4 @@
-package com.camunda.academy.insurance.worker.insurance.reject
+package com.camunda.academy.insurance.worker
 
 import com.camunda.academy.insurance.persistence.entity.Insurance
 import com.camunda.academy.insurance.persistence.entity.InsuranceStatus

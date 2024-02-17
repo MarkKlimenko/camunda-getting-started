@@ -11,9 +11,6 @@ class IssuePolicyService(
     val client: ZeebeClient
 ) {
     suspend fun retryIssuePolicy(id: String, status: ManualPolicyStatus): UniversalResponse {
-        //val resultDto: InsuranceDto = dto.copy(status = status)
-        //insuranceService.save(resultDto)
-
         client.newPublishMessageCommand()
             .messageName("insurance.issue.retryIssuePolicy")
             .correlationKey(id)

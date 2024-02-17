@@ -14,6 +14,8 @@ buildscript {
         springCloudVersion = "2021.0.6"
         springManagementVersion = "1.0.15.RELEASE"
 
+        feignVersion = "3.1.0"
+
         loggerVersion = "1.4.3"
 
         junitVersion = "5.8.1"
@@ -83,7 +85,12 @@ dependencies {
     // flyway
     implementation "org.springframework.boot:spring-boot-starter-jdbc"
     implementation "org.flywaydb:flyway-core"
-    
+
+    // feign
+    implementation "com.playtika.reactivefeign:feign-reactor-webclient:$feignVersion"
+    implementation "com.playtika.reactivefeign:feign-reactor-cloud:$feignVersion"
+    implementation "com.playtika.reactivefeign:feign-reactor-spring-configuration:$feignVersion"
+
     // test
     testImplementation "org.springframework.boot:spring-boot-starter-test"
     testImplementation "org.junit.jupiter:junit-jupiter-api:$junitVersion"
