@@ -8,6 +8,7 @@ import com.camunda.academy.insurance.persistence.repository.InsuranceRepository
 import io.camunda.zeebe.spring.client.annotation.JobWorker
 import io.camunda.zeebe.spring.client.annotation.Variable
 import io.camunda.zeebe.spring.client.exception.ZeebeBpmnError
+import kotlinx.coroutines.runBlocking
 import mu.KLogging
 import org.springframework.stereotype.Component
 
@@ -27,23 +28,27 @@ class IssuePolicyWorker(
     }
 
     @JobWorker(type = "insurance.issue.issuePolicy")
-    suspend fun issuePolicy(@Variable id: String): Map<String, InsuranceStatus> {
+    fun issuePolicy(@Variable id: String): Map<String, InsuranceStatus> = runBlocking {
         val insurance: Insurance = insuranceRepository.findById(id)
             ?: error("Insurance not found")
 
         try {
-            return if (insurance.userAge == 31) {
-                throw IllegalArgumentException("Age 31 is not supported")
-            } else if (insurance.userAge == 32) {
-                insuranceRepository.save(insurance.copy(status = REJECTED))
+            when (insurance.userAge) {
+                31 -> throw IllegalArgumentException("Age 31 is not supported")
 
-                logger.info { "System: Policy rejected. id=$id" }
-                mapOf("status" to REJECTED)
-            } else {
-                insuranceRepository.save(insurance.copy(status = SUCCESS))
+                32 -> {
+                    insuranceRepository.save(insurance.copy(status = REJECTED))
 
-                logger.info { "System: Policy issued. id=$id" }
-                mapOf("status" to SUCCESS)
+                    logger.info { "System: Policy rejected. id=$id" }
+                    mapOf("status" to REJECTED)
+                }
+
+                else -> {
+                    insuranceRepository.save(insurance.copy(status = SUCCESS))
+
+                    logger.info { "System: Policy issued. id=$id" }
+                    mapOf("status" to SUCCESS)
+                }
             }
 
         } catch (e: Exception) {

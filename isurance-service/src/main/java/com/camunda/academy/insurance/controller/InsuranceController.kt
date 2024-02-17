@@ -3,8 +3,10 @@ package com.camunda.academy.insurance.controller
 import com.camunda.academy.insurance.controller.dto.CreateInsuranceRequest
 import com.camunda.academy.insurance.controller.dto.ManualPolicyStatus
 import com.camunda.academy.insurance.controller.dto.UniversalResponse
+import com.camunda.academy.insurance.persistence.entity.Insurance
 import com.camunda.academy.insurance.service.InsuranceService
 import com.camunda.academy.insurance.service.IssuePolicyService
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -22,6 +24,11 @@ class InsuranceController(
     suspend fun createInsurance(
         @RequestBody request: CreateInsuranceRequest
     ): UniversalResponse = insuranceService.createInsurance(request)
+
+    @GetMapping("{id}")
+    suspend fun getInsurance(
+        @PathVariable id: String,
+    ): Insurance = insuranceService.getInsurance(id)
 
     @PostMapping("operator/issue-policy/retry/{id}/{status}")
     suspend fun retryIssuePolicy(

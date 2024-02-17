@@ -56,5 +56,8 @@ class InsuranceService(
         }
     }
 
+    suspend fun getInsurance(id: String): Insurance =
+        insuranceRepository.findById(id) ?: error("insurance not found")
+
     private companion object : KLogging()
 }
