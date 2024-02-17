@@ -126,9 +126,6 @@
           <zeebe:properties>
             <zeebe:property name="camundaModeler:exampleOutputJson" value="{&#10; &#34;paymentStatus&#34;: &#34;RECEIVED/DECLINED&#34;&#10;}&#10;" />
           </zeebe:properties>
-          <zeebe:ioMapping>
-            <zeebe:output target="OutputVariable_1f7h724" />
-          </zeebe:ioMapping>
         </bpmn:extensionElements>
         <bpmn:incoming>Flow_09iyyog</bpmn:incoming>
         <bpmn:outgoing>Flow_1nfhy70</bpmn:outgoing>

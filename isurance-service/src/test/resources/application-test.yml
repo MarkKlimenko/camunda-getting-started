@@ -1,0 +1,6 @@
+client:
+  payment-service:
+    url: localhost:${wiremock.server.port}
+  risk-service:
+    url: localhost:${wiremock.server.port}
+

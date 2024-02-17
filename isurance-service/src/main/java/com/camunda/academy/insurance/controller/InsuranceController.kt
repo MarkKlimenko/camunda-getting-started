@@ -18,7 +18,7 @@ class InsuranceController(
     val issuePolicyService: IssuePolicyService,
 ) {
 
-    @PostMapping("user")
+    @PostMapping
     suspend fun createInsurance(
         @RequestBody request: CreateInsuranceRequest
     ): UniversalResponse = insuranceService.createInsurance(request)

@@ -5,7 +5,6 @@ import org.springframework.boot.test.context.SpringBootTest
 
 @SpringBootTest
 @CucumberContextConfiguration
-//@ZeebeSpringTest
 class BpmnTest {
 
     val storage: MutableMap<String, String> = mutableMapOf()

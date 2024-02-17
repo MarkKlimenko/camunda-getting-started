@@ -9,19 +9,19 @@ import org.springframework.data.relational.core.mapping.Table
 data class Insurance(
     @field:Id
     @field:Column("id")
-    val id: String? = null,
+    val id: String,
 
     @field:Column("status")
-    val status: InsuranceStatus? = null,
+    val status: InsuranceStatus,
 
     @field:Column("user_name")
-    val userName: String? = null,
+    val userName: String,
 
     @field:Column("user_age")
-    val userAge: Int? = null,
+    val userAge: Int,
 
     @field:Column("auto_brand")
-    val autoBrand: String? = null,
+    val autoBrand: String,
 
     @field:Version
     val version: Int? = null

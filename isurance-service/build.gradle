@@ -92,7 +92,12 @@ dependencies {
     implementation "com.playtika.reactivefeign:feign-reactor-spring-configuration:$feignVersion"
 
     // test
+    testImplementation "org.springframework.cloud:spring-cloud-contract-wiremock"
     testImplementation "org.springframework.boot:spring-boot-starter-test"
+
+    testImplementation 'io.camunda.spring:spring-boot-starter-camunda-test:8.3.5'
+    testImplementation 'com.fasterxml.jackson.core:jackson-core:2.15.4'
+
     testImplementation "org.junit.jupiter:junit-jupiter-api:$junitVersion"
     testImplementation "org.junit.jupiter:junit-jupiter-params:$junitVersion"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitVersion"

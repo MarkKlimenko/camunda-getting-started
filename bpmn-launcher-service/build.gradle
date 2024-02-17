@@ -75,7 +75,6 @@ dependencies {
     testImplementation "io.cucumber:cucumber-java:6.10.4"
     testImplementation "io.cucumber:cucumber-spring:6.10.4"
     testImplementation "io.cucumber:cucumber-junit-platform-engine:6.10.4"
-    //testImplementation 'io.camunda:spring-zeebe-test:8.3.5'
 }
 
 test {

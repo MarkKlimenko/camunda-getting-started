@@ -33,7 +33,7 @@ class InsuranceService(
             insuranceRepository.save(insurance)
 
             client.newCreateInstanceCommand()
-                .bpmnProcessId("insuranceProcess")
+                .bpmnProcessId("insurance.applyForPolicy")
                 .latestVersion()
                 .variables(mapOf(
                     "id" to insurance.id,
@@ -47,7 +47,7 @@ class InsuranceService(
             logger.info { "User: application created dto = $insurance" }
 
             return UniversalResponse(
-                id = insurance.id!!,
+                id = insurance.id,
                 message = "Your application was created. Please wait for decision"
             )
         } catch (e: Exception) {
