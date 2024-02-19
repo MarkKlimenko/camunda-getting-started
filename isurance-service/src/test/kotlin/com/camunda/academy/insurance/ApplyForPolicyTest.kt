@@ -6,19 +6,16 @@ import com.camunda.academy.insurance.controller.dto.RisksDecisionStatus
 import com.camunda.academy.insurance.controller.dto.UniversalResponse
 import com.camunda.academy.insurance.persistence.entity.Insurance
 import com.camunda.academy.insurance.persistence.entity.InsuranceStatus
-import com.github.tomakehurst.wiremock.client.WireMock
+import com.camunda.academy.insurance.util.await
+import com.camunda.academy.insurance.util.awaitClientRequest
+import com.camunda.academy.insurance.util.postStub
 import io.camunda.zeebe.client.ZeebeClient
 import kotlinx.coroutines.reactive.awaitSingle
 import kotlinx.coroutines.runBlocking
-import org.awaitility.Awaitility
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import org.opentest4j.AssertionFailedError
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
-import java.time.Duration
-import java.util.concurrent.TimeUnit
 
 class ApplyForPolicyTest : WebIntegrationTest() {
 
@@ -26,22 +23,9 @@ class ApplyForPolicyTest : WebIntegrationTest() {
     lateinit var client: ZeebeClient
 
     @Test
-    fun commonFlowTest() = runBlocking<Unit> {
-        wireMockServer.stubFor(
-            WireMock.post(WireMock.urlMatching("/api/v1/processing.*"))
-                .willReturn(
-                    WireMock.aResponse()
-                        .withStatus(HttpStatus.OK.value())
-                )
-        )
-
-        wireMockServer.stubFor(
-            WireMock.post(WireMock.urlMatching("/api/v1/payment/init.*"))
-                .willReturn(
-                    WireMock.aResponse()
-                        .withStatus(HttpStatus.OK.value())
-                )
-        )
+    fun `Success flow test`() = runBlocking<Unit> {
+        wireMockServer.postStub("/api/v1/processing.*")
+        wireMockServer.postStub("/api/v1/payment/init.*")
 
 
         val request = CreateInsuranceRequest(
@@ -62,20 +46,7 @@ class ApplyForPolicyTest : WebIntegrationTest() {
         assertEquals("Your application was created. Please wait for decision", response.message)
 
         // await for worker - Init risks processing
-        Awaitility.waitAtMost(Duration.ofSeconds(20))
-            .pollInterval(500, TimeUnit.MILLISECONDS)
-            .until {
-                try {
-                    WireMock.verify(
-                        WireMock.postRequestedFor(WireMock.urlMatching("/api/v1/processing/${response.id}"))
-                    )
-
-                    true
-                } catch (e: AssertionFailedError) {
-                    println(e)
-                    false
-                }
-            }
+        wireMockServer.awaitClientRequest("/api/v1/processing/${response.id}")
 
         // Callback: launch - Receive risks decision
         webTestClient.post()
@@ -86,20 +57,7 @@ class ApplyForPolicyTest : WebIntegrationTest() {
             .responseBody.awaitSingle()
 
         // await - Init payment process
-        Awaitility.waitAtMost(Duration.ofSeconds(20))
-            .pollInterval(500, TimeUnit.MILLISECONDS)
-            .until {
-                try {
-                    WireMock.verify(
-                        WireMock.postRequestedFor(WireMock.urlMatching("/api/v1/payment/init/${response.id}"))
-                    )
-
-                    true
-                } catch (e: AssertionFailedError) {
-                    println(e)
-                    false
-                }
-            }
+        wireMockServer.awaitClientRequest("/api/v1/payment/init/${response.id}")
 
         // Callback: launch - Receive payment status
         webTestClient.post()
@@ -109,30 +67,147 @@ class ApplyForPolicyTest : WebIntegrationTest() {
             .returnResult(UniversalResponse::class.java)
             .responseBody.awaitSingle()
 
+        // Check final insurance status
+        await {
+            val finalResponse: Insurance = webTestClient.get()
+                .uri("/api/v1/insurance/${response.id}")
+                .exchange()
+                .expectStatus().isOk
+                .returnResult(Insurance::class.java)
+                .responseBody.awaitSingle()
 
-        // TODO: await worker "User: send policy" to process - rm awaitility for the next step
+            assertEquals(response.id, finalResponse.id)
+            assertEquals(InsuranceStatus.SUCCESS, finalResponse.status)
+        }
+    }
+
+    @Test
+    fun `Reject policy by risk decision`() = runBlocking<Unit> {
+        wireMockServer.postStub("/api/v1/processing.*")
+        wireMockServer.postStub("/api/v1/payment/return.*")
+
+
+        val request = CreateInsuranceRequest(
+            userName = "Name Rejected",
+            userAge = 30,
+            autoBrand = "audi",
+        )
+
+        val response: UniversalResponse = webTestClient.post()
+            .uri("/api/v1/insurance")
+            .contentType(MediaType.APPLICATION_JSON)
+            .bodyValue(request)
+            .exchange()
+            .expectStatus().isOk
+            .returnResult(UniversalResponse::class.java)
+            .responseBody.awaitSingle()
+
+        assertEquals("Your application was created. Please wait for decision", response.message)
+
+        // await for worker - Init risks processing
+        wireMockServer.awaitClientRequest("/api/v1/processing/${response.id}")
+
+        // Callback: launch - Receive risks decision
+        webTestClient.post()
+            .uri("/api/v1/risks/${response.id}/${RisksDecisionStatus.REJECTED}")
+            .exchange()
+            .expectStatus().isOk
+            .returnResult(UniversalResponse::class.java)
+            .responseBody.awaitSingle()
+
+        // await - Init payment return
+        wireMockServer.awaitClientRequest("/api/v1/payment/return/${response.id}")
+
+        // Callback: launch - Receive payment return status
+        webTestClient.delete()
+            .uri("/api/v1/payment/${response.id}")
+            .exchange()
+            .expectStatus().isOk
+            .returnResult(UniversalResponse::class.java)
+            .responseBody.awaitSingle()
 
         // Check final insurance status
-        Awaitility.waitAtMost(Duration.ofSeconds(20))
-            .pollInterval(500, TimeUnit.MILLISECONDS)
-            .until {
-                try {
-                    runBlocking {
-                        val finalResponse: Insurance = webTestClient.get()
-                            .uri("/api/v1/insurance/${response.id}")
-                            .exchange()
-                            .expectStatus().isOk
-                            .returnResult(Insurance::class.java)
-                            .responseBody.awaitSingle()
+        await {
+            val finalResponse: Insurance = webTestClient.get()
+                .uri("/api/v1/insurance/${response.id}")
+                .exchange()
+                .expectStatus().isOk
+                .returnResult(Insurance::class.java)
+                .responseBody.awaitSingle()
 
-                        assertEquals(response.id, finalResponse.id)
-                        assertEquals(InsuranceStatus.SUCCESS, finalResponse.status)
-                    }
-                    true
-                } catch (e: AssertionFailedError) {
-                    println(e)
-                    false
-                }
-            }
+            assertEquals(response.id, finalResponse.id)
+            assertEquals(InsuranceStatus.REJECTED, finalResponse.status)
+        }
+    }
+
+    @Test
+    fun `Reject policy payment declined`() = runBlocking<Unit> {
+        wireMockServer.postStub("/api/v1/processing.*")
+        wireMockServer.postStub("/api/v1/payment/init.*")
+        wireMockServer.postStub("/api/v1/payment/return.*")
+
+
+        val request = CreateInsuranceRequest(
+            userName = "Name Payment Rejected",
+            userAge = 30,
+            autoBrand = "audi",
+        )
+
+        val response: UniversalResponse = webTestClient.post()
+            .uri("/api/v1/insurance")
+            .contentType(MediaType.APPLICATION_JSON)
+            .bodyValue(request)
+            .exchange()
+            .expectStatus().isOk
+            .returnResult(UniversalResponse::class.java)
+            .responseBody.awaitSingle()
+
+        assertEquals("Your application was created. Please wait for decision", response.message)
+
+        // await for worker - Init risks processing
+        wireMockServer.awaitClientRequest("/api/v1/processing/${response.id}")
+
+        // Callback: launch - Receive risks decision
+        webTestClient.post()
+            .uri("/api/v1/risks/${response.id}/${RisksDecisionStatus.ACCEPTED}")
+            .exchange()
+            .expectStatus().isOk
+            .returnResult(UniversalResponse::class.java)
+            .responseBody.awaitSingle()
+
+        // await - Init payment init
+        wireMockServer.awaitClientRequest("/api/v1/payment/init/${response.id}")
+
+        // Callback: launch - Receive payment status
+        webTestClient.post()
+            .uri("/api/v1/payment/${response.id}/${PaymentStatus.DECLINED}")
+            .exchange()
+            .expectStatus().isOk
+            .returnResult(UniversalResponse::class.java)
+            .responseBody.awaitSingle()
+
+        // await - Init payment return
+        wireMockServer.awaitClientRequest("/api/v1/payment/return/${response.id}")
+
+        // Callback: launch - Receive payment return status
+        webTestClient.delete()
+            .uri("/api/v1/payment/${response.id}")
+            .exchange()
+            .expectStatus().isOk
+            .returnResult(UniversalResponse::class.java)
+            .responseBody.awaitSingle()
+
+        // Check final insurance status
+        await {
+            val finalResponse: Insurance = webTestClient.get()
+                .uri("/api/v1/insurance/${response.id}")
+                .exchange()
+                .expectStatus().isOk
+                .returnResult(Insurance::class.java)
+                .responseBody.awaitSingle()
+
+            assertEquals(response.id, finalResponse.id)
+            assertEquals(InsuranceStatus.REJECTED, finalResponse.status)
+        }
     }
 }

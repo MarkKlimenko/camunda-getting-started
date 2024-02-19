@@ -6,6 +6,7 @@ import com.camunda.academy.insurance.persistence.entity.Insurance
 import com.camunda.academy.insurance.persistence.entity.InsuranceStatus
 import com.camunda.academy.insurance.persistence.repository.InsuranceRepository
 import io.camunda.zeebe.client.ZeebeClient
+import io.camunda.zeebe.client.api.response.ProcessInstanceEvent
 import mu.KLogging
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
@@ -32,7 +33,7 @@ class InsuranceService(
 
             insuranceRepository.save(insurance)
 
-            client.newCreateInstanceCommand()
+            val process: ProcessInstanceEvent = client.newCreateInstanceCommand()
                 .bpmnProcessId("insurance.applyForPolicy")
                 .latestVersion()
                 .variables(mapOf(
@@ -44,7 +45,7 @@ class InsuranceService(
                 .send()
                 .join()
 
-            logger.info { "User: application created dto = $insurance" }
+            logger.info { "User: application created dto=$insurance, processId=${process.bpmnProcessId}" }
 
             return UniversalResponse(
                 id = insurance.id,
