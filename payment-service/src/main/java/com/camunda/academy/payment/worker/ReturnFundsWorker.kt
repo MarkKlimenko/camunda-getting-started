@@ -1,8 +1,7 @@
-package com.camunda.academy.insurance.worker
+package com.camunda.academy.payment.worker
 
 import io.camunda.zeebe.spring.client.annotation.JobWorker
 import io.camunda.zeebe.spring.client.annotation.Variable
-import io.camunda.zeebe.spring.client.annotation.VariablesAsType
 import mu.KLogging
 import org.springframework.stereotype.Component
 

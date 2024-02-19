@@ -1,4 +1,4 @@
-package com.camunda.academy.insurance.controller.dto
+package com.camunda.academy.payment.persistence.entity
 
 enum class PaymentStatus {
     PENDING, RECEIVED, DECLINED

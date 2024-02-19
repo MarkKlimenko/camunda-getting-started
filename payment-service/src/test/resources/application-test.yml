@@ -1,0 +1,4 @@
+client:
+  insurance-service:
+    url: localhost:${wiremock.server.port}
+

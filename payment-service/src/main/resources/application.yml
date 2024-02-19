@@ -11,3 +11,33 @@ server:
   error:
     include-message: always
   port: 8082
+
+storage:
+  database:
+    url: postgresql://localhost:5432/payment
+    username: postgres
+    password: postgres
+
+spring:
+  application:
+    name: payment-service
+  r2dbc:
+    url: r2dbc:${storage.database.url}
+    username: ${storage.database.username}
+    password: ${storage.database.password}
+    pool:
+      enabled: true
+      initial-size: 10
+      max-size: 30
+      max-idle-time: 1m
+  flyway:
+    url: jdbc:${storage.database.url}
+    user: ${storage.database.username}
+    password: ${storage.database.password}
+    baseline-on-migrate: true
+    baseline-version: 0
+    clean-on-validation-error: false
+
+client:
+  insurance-service:
+    url: localhost:8081

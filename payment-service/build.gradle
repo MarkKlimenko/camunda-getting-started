@@ -10,6 +10,8 @@ buildscript {
         springCloudVersion = "2021.0.6"
         springManagementVersion = "1.0.15.RELEASE"
 
+        feignVersion = "3.1.0"
+
         loggerVersion = "1.4.3"
 
         junitVersion = "5.8.1"
@@ -69,8 +71,29 @@ dependencies {
     implementation "io.github.microutils:kotlin-logging-jvm:$kotlinLoggingVersion"
     implementation "com.fasterxml.jackson.module:jackson-module-kotlin:$kotlinJacksonVersion"
 
+    // database
+    implementation "org.springframework.boot:spring-boot-starter-data-r2dbc"
+
+    // database - postgres
+    implementation "org.postgresql:postgresql"
+    implementation "org.postgresql:r2dbc-postgresql"
+
+    // flyway
+    implementation "org.springframework.boot:spring-boot-starter-jdbc"
+    implementation "org.flywaydb:flyway-core"
+
+    // feign
+    implementation "com.playtika.reactivefeign:feign-reactor-webclient:$feignVersion"
+    implementation "com.playtika.reactivefeign:feign-reactor-cloud:$feignVersion"
+    implementation "com.playtika.reactivefeign:feign-reactor-spring-configuration:$feignVersion"
+
     // test
+    testImplementation "org.springframework.cloud:spring-cloud-contract-wiremock"
     testImplementation "org.springframework.boot:spring-boot-starter-test"
+
+    testImplementation 'io.camunda.spring:spring-boot-starter-camunda-test:8.3.5'
+    testImplementation 'com.fasterxml.jackson.core:jackson-core:2.15.4'
+
     testImplementation "org.junit.jupiter:junit-jupiter-api:$junitVersion"
     testImplementation "org.junit.jupiter:junit-jupiter-params:$junitVersion"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitVersion"

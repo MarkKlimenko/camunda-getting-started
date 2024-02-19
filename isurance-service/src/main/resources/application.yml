@@ -14,7 +14,7 @@ server:
 
 storage:
   database:
-    url: postgresql://localhost:5432/postgres
+    url: postgresql://localhost:5432/insurance
     username: postgres
     password: postgres
 
