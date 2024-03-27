@@ -10,7 +10,7 @@ zeebe:
 server:
   error:
     include-message: always
-  port: 8082
+  port: 7082
 
 storage:
   database:
@@ -40,4 +40,4 @@ spring:
 
 client:
   insurance-service:
-    url: localhost:8081
+    url: localhost:7081

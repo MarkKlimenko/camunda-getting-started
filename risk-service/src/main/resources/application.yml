@@ -10,4 +10,4 @@ zeebe:
 server:
   error:
     include-message: always
-  port: 8083
+  port: 7083

@@ -1,16 +1,16 @@
 zeebe:
   client:
-    cloud:
-      region: jfk-1
-      clusterId: d94b4bc3-d0ab-4046-a3e4-543e82d4840e
-      clientId: GfdvNzYFS8fKVTYDZs6TleXxaMCPRYxt
-      clientSecret: tdwuoLQpSPi4tZrVpNzDoQMWYP8KCDo4VCSie2K_LIuXItBiN3hiG20-.bBRItuf
+    connection-mode: ADDRESS
+    broker:
+      gateway-address: 127.0.0.1:26500
+    security:
+      plaintext: true
     default-job-worker-tenant-ids:
 
 server:
   error:
     include-message: always
-  port: 8081
+  port: 7081
 
 storage:
   database:
@@ -40,6 +40,6 @@ spring:
 
 client:
   payment-service:
-    url: localhost:8082
+    url: localhost:7082
   risk-service:
-    url: localhost:8083
+    url: localhost:7083
