@@ -4,3 +4,8 @@ client:
   risk-service:
     url: localhost:${wiremock.server.port}
 
+storage:
+  database:
+    url: postgresql://${embedded.postgresql.host}:${embedded.postgresql.port}/${embedded.postgresql.schema}
+    username: ${embedded.postgresql.user}
+    password: ${embedded.postgresql.password}

@@ -2,6 +2,7 @@ package com.camunda.academy.insurance.worker
 
 import com.camunda.academy.insurance.persistence.entity.Insurance
 import com.camunda.academy.insurance.persistence.entity.InsuranceStatus
+import com.camunda.academy.insurance.persistence.entity.InsuranceStatus.PENDING_MANUAL
 import com.camunda.academy.insurance.persistence.entity.InsuranceStatus.REJECTED
 import com.camunda.academy.insurance.persistence.entity.InsuranceStatus.SUCCESS
 import com.camunda.academy.insurance.persistence.repository.InsuranceRepository
@@ -58,8 +59,12 @@ class IssuePolicyWorker(
     }
 
     @JobWorker(type = "insurance.issue.notifyOperatorOnError")
-    fun notifyOperatorOnError(@Variable id: String) {
-        logger.info { "Operator: Error during policy issuing. id=$id" }
+    fun notifyOperatorOnError(@Variable id: String) = runBlocking {
+        val insurance: Insurance = insuranceRepository.findById(id)
+            ?.also { insuranceRepository.save(it.copy(status = PENDING_MANUAL)) }
+            ?: error("Insurance not found")
+
+        logger.info { "Operator: Error during policy issuing. id=$insurance.id" }
     }
 
     @JobWorker(type = "insurance.issue.sendPolicy")

@@ -1,6 +1,7 @@
 package com.camunda.academy.insurance
 
 import com.camunda.academy.insurance.controller.dto.CreateInsuranceRequest
+import com.camunda.academy.insurance.controller.dto.ManualPolicyStatus
 import com.camunda.academy.insurance.controller.dto.PaymentStatus
 import com.camunda.academy.insurance.controller.dto.RisksDecisionStatus
 import com.camunda.academy.insurance.controller.dto.UniversalResponse
@@ -10,10 +11,13 @@ import com.camunda.academy.insurance.util.await
 import com.camunda.academy.insurance.util.awaitClientRequest
 import com.camunda.academy.insurance.util.postStub
 import io.camunda.zeebe.client.ZeebeClient
+import io.camunda.zeebe.spring.client.exception.ZeebeBpmnError
 import kotlinx.coroutines.reactive.awaitSingle
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import org.mockito.ArgumentMatchers.anyString
+import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
 
@@ -79,6 +83,8 @@ class ApplyForPolicyTest : WebIntegrationTest() {
             assertEquals(response.id, finalResponse.id)
             assertEquals(InsuranceStatus.SUCCESS, finalResponse.status)
         }
+
+        // TODO: Check mail sender
     }
 
     @Test
@@ -138,6 +144,8 @@ class ApplyForPolicyTest : WebIntegrationTest() {
             assertEquals(response.id, finalResponse.id)
             assertEquals(InsuranceStatus.REJECTED, finalResponse.status)
         }
+
+        // TODO: Check mail sender
     }
 
     @Test
@@ -197,7 +205,7 @@ class ApplyForPolicyTest : WebIntegrationTest() {
             .returnResult(UniversalResponse::class.java)
             .responseBody.awaitSingle()
 
-        // Check final insurance status
+        // Check final insurance status - APPROVED
         await {
             val finalResponse: Insurance = webTestClient.get()
                 .uri("/api/v1/insurance/${response.id}")
@@ -209,5 +217,117 @@ class ApplyForPolicyTest : WebIntegrationTest() {
             assertEquals(response.id, finalResponse.id)
             assertEquals(InsuranceStatus.REJECTED, finalResponse.status)
         }
+
+        // TODO: Check mail sender
+    }
+
+    @Test
+    fun `Handle issue policy error test (approve after retry)`() = runBlocking<Unit> {
+        wireMockServer.postStub("/api/v1/processing.*")
+        wireMockServer.postStub("/api/v1/payment/init.*")
+
+        // Works for Java but not Kotlin
+        //`when`(issuePolicyWorker.issuePolicy(anyString()))
+        //    .thenThrow(RuntimeException("Test exception"))
+
+        Mockito.doThrow(ZeebeBpmnError("issuePolicyError", "Test exception"))
+            .`when`(issuePolicyWorker)
+            .issuePolicy(anyString())
+
+        val request = CreateInsuranceRequest(
+            userName = "name",
+            userAge = 30,
+            autoBrand = "audi",
+        )
+
+        val response: UniversalResponse = webTestClient.post()
+            .uri("/api/v1/insurance")
+            .contentType(MediaType.APPLICATION_JSON)
+            .bodyValue(request)
+            .exchange()
+            .expectStatus().isOk
+            .returnResult(UniversalResponse::class.java)
+            .responseBody.awaitSingle()
+
+        assertEquals("Your application was created. Please wait for decision", response.message)
+
+        // await for worker - Init risks processing
+        wireMockServer.awaitClientRequest("/api/v1/processing/${response.id}")
+
+        // Callback: launch - Receive risks decision
+        webTestClient.post()
+            .uri("/api/v1/risks/${response.id}/${RisksDecisionStatus.ACCEPTED}")
+            .exchange()
+            .expectStatus().isOk
+            .returnResult(UniversalResponse::class.java)
+            .responseBody.awaitSingle()
+
+        // await - Init payment process
+        wireMockServer.awaitClientRequest("/api/v1/payment/init/${response.id}")
+
+        // Callback: launch - Receive payment status
+        webTestClient.post()
+            .uri("/api/v1/payment/${response.id}/${PaymentStatus.RECEIVED}")
+            .exchange()
+            .expectStatus().isOk
+            .returnResult(UniversalResponse::class.java)
+            .responseBody.awaitSingle()
+
+        // Check PENDING_MANUAL insurance status (operator notified)
+        await {
+            val finalResponse: Insurance = webTestClient.get()
+                .uri("/api/v1/insurance/${response.id}")
+                .exchange()
+                .expectStatus().isOk
+                .returnResult(Insurance::class.java)
+                .responseBody.awaitSingle()
+
+            assertEquals(response.id, finalResponse.id)
+            assertEquals(InsuranceStatus.PENDING_MANUAL, finalResponse.status)
+        }
+
+        // Operator: does manual action - RETRY
+        webTestClient.post()
+            .uri("/api/v1/insurance/operator/issue-policy/retry/${response.id}/${ManualPolicyStatus.RETRY}")
+            .exchange()
+            .expectStatus().isOk
+            .returnResult(UniversalResponse::class.java)
+            .responseBody.awaitSingle()
+
+        // Check PENDING_MANUAL insurance status (operator notified)
+        await {
+            val finalResponse: Insurance = webTestClient.get()
+                .uri("/api/v1/insurance/${response.id}")
+                .exchange()
+                .expectStatus().isOk
+                .returnResult(Insurance::class.java)
+                .responseBody.awaitSingle()
+
+            assertEquals(response.id, finalResponse.id)
+            assertEquals(InsuranceStatus.PENDING_MANUAL, finalResponse.status)
+        }
+
+        // Operator: does manual action - RETRY
+        webTestClient.post()
+            .uri("/api/v1/insurance/operator/issue-policy/retry/${response.id}/${ManualPolicyStatus.APPROVED}")
+            .exchange()
+            .expectStatus().isOk
+            .returnResult(UniversalResponse::class.java)
+            .responseBody.awaitSingle()
+
+        // Check final insurance status
+        await {
+            val finalResponse: Insurance = webTestClient.get()
+                .uri("/api/v1/insurance/${response.id}")
+                .exchange()
+                .expectStatus().isOk
+                .returnResult(Insurance::class.java)
+                .responseBody.awaitSingle()
+
+            assertEquals(response.id, finalResponse.id)
+            assertEquals(InsuranceStatus.SUCCESS, finalResponse.status)
+        }
+
+        // TODO: Check mail sender
     }
 }

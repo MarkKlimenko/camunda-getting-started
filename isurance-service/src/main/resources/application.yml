@@ -37,9 +37,3 @@ spring:
     baseline-on-migrate: true
     baseline-version: 0
     clean-on-validation-error: false
-
-client:
-  payment-service:
-    url: localhost:7082
-  risk-service:
-    url: localhost:7083
