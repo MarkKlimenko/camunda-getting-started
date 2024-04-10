@@ -1,7 +1,7 @@
-package com.camunda.academy.insurance.service.risk
+package com.camunda.academy.risks.service
 
-import com.camunda.academy.insurance.controller.dto.insurance.UniversalResponse
-import com.camunda.academy.insurance.dto.ApplicationDecision
+import com.camunda.academy.risks.controller.dto.insurance.UniversalResponse
+import com.camunda.academy.risks.dto.ManualDecision
 import io.camunda.zeebe.client.ZeebeClient
 import mu.KLogging
 import org.springframework.stereotype.Service
@@ -11,7 +11,7 @@ class RiskService(
     val client: ZeebeClient
 ) {
 
-    suspend fun decideOnApplication(id: String, decision: ApplicationDecision): UniversalResponse {
+    suspend fun decideOnApplication(id: String, decision: ManualDecision): UniversalResponse {
         client.newPublishMessageCommand()
             .messageName("insurance.risk.decideOnApplication")
             .correlationKey(id)
